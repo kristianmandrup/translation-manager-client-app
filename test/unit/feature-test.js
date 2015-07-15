@@ -1,33 +1,17 @@
-import MyLibrary from '../../src/index';
+/*eslint-disable */
+import TranslationManager from '../../src/index';
 
-describe('A feature test', () => {
-  describe('one function', () => {
-    beforeEach(() => {
-      spy(MyLibrary, 'mainFn');
-      MyLibrary.mainFn();
-    });
-
-    it('should have been run once', () => {
-      expect(MyLibrary.mainFn).to.have.been.calledOnce;
-    });
-
-    it('should have always returned hello', () => {
-      expect(MyLibrary.mainFn).to.have.always.returned('hello');
-    });
+describe('A Feature tests', () => {
+  it('TranslationManager exsists', () => expect(TranslationManager).is.not.undefined);
+  it('Created TranslationManager', () => {
+    var options = {'locales': ['en'],
+      'realtimePort': 6379, /*optional. Default value 6379*/
+      'realtimeHost': '127.0.0.1', /*optional. Default value 127.0.0.1*/
+      'railsPort': 3000, /*optional. Default value 3000*/
+      'railsHost': '127.0.0.1', /*optional. Default value 127.0.0.1*/
+      'channel': 'realtime_msg' /*optional. Default value realtime_msg*/
+    };
+    var translationManager = new TranslationManager(options);
   });
 
-  describe('another function', () => {
-    beforeEach(() => {
-      spy(MyLibrary, 'anotherFn');
-      MyLibrary.anotherFn();
-    });
-
-    it('should have been run once', () => {
-      expect(MyLibrary.anotherFn).to.have.been.calledOnce;
-    });
-
-    it('should have always returned "ok, friend"', () => {
-      expect(MyLibrary.anotherFn).to.have.always.returned('ok, friend');
-    });
-  });
 });
