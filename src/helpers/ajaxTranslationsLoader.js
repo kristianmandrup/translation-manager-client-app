@@ -1,4 +1,5 @@
 import Ajax from 'ainojs-ajax';
+import EventLogger from './eventLogger';
 
 /**
  * @class
@@ -24,10 +25,11 @@ class AjaxTranslationsLoader {
   }
 
   load() {
+    EventLogger.log('Ajax');
     Ajax.get(this.request).then(function(data) {
-      console.log(data);
+      EventLogger.log(data);
     }).catch(function(data) {
-      console.log(data);
+      EventLogger.log(data);
     });
   }
 }

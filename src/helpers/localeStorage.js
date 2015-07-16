@@ -1,13 +1,14 @@
 import AjaxTranslationsLoader from './ajaxTranslationsLoader';
-
+import EventLogger from './eventLogger';
 /**
  * @class
  * An awesome script
  */
-class LocaleStorage {
+export class LocaleStorage {
   constructor(options) {
     this.loader = options.loader || LocaleStorage.defaultLoader;
     this.initialize();
+    this.store = options.storage || window.localStorage;
   }
 
   static get defaultLoader() {
@@ -28,25 +29,19 @@ class LocaleStorage {
   }
 
   sucessCallback(data) {
-    // do stuff with data
-    console.log('save');
-    this.save(Object.keys(data)[0], JSON.stringify(data[Object.keys(data)[0]]));
+    this.dataKeys = Object.keys(data)[0];
+    this.save(this.dataKeys, JSON.stringify(data[this.dataKeys]));
   }
 
   failCalllback(data) {
-    // do stuff with data
-    console.log('fail');
-    console.log(data);
+    EventLogger.log(data);
   }
 
   save(key, value) {
-    window.localStorage.setItem(key, value);
-    console.log('localStorage = ' + key + ' : ' + value);
+    this.store.setItem(key, value);
   }
 
   load(key) {
-    window.localStorage.getItem(key);
+    this.store.getItem(key);
   }
 }
-
-export default LocaleStorage;

@@ -3,8 +3,8 @@
  * An awesome script
  */
 class EventLogger {
-  log(message) {
-    console.log(message);
+  static log(message) {
+    EventLogger.log(message);
   }
 }
 

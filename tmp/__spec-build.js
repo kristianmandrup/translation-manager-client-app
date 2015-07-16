@@ -11,18 +11,18 @@ global.onload = function () {
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../../package.json":32,"./setup":43}],2:[function(require,module,exports){
+},{"../../package.json":32,"./setup":42}],2:[function(require,module,exports){
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 /*eslint-disable */
 
-var _srcIndex = require('../../src/index');
+var _srcIndexJs = require('../../src/index.js');
 
-var _srcIndex2 = _interopRequireDefault(_srcIndex);
+var _srcIndexJs2 = _interopRequireDefault(_srcIndexJs);
 
 describe('A Feature tests', function () {
   it('TranslationManager exsists', function () {
-    return expect(_srcIndex2['default']).is.not.undefined;
+    return expect(_srcIndexJs2['default']).is.not.undefined;
   });
   it('Created TranslationManager', function () {
     var options = { 'locales': ['en'],
@@ -32,11 +32,11 @@ describe('A Feature tests', function () {
       'railsHost': '127.0.0.1', /*optional. Default value 127.0.0.1*/
       'channel': 'realtime_msg' /*optional. Default value realtime_msg*/
     };
-    var translationManager = new _srcIndex2['default'](options);
+    var translationManager = new _srcIndexJs2['default'](options);
   });
 });
 
-},{"../../src/index":42}],3:[function(require,module,exports){
+},{"../../src/index.js":41}],3:[function(require,module,exports){
 var Promise = require('promise')
 
 var parse = function (req) {
@@ -5097,9 +5097,14 @@ module.exports={
     "gulp-rename": "^1.2.0",
     "gulp-sourcemaps": "^1.3.0",
     "gulp-uglify": "^1.2.0",
+    "i18n-node": "^2.1.3",
     "isparta": "^2.2.0",
+    "jasmine": "^2.3.1",
+    "jasmine-ajax": "^3.1.1",
+    "jquery": "^2.1.4",
     "mkdirp": "^0.5.0",
     "mocha": "^2.1.0",
+    "redis-pubsub": "^0.3.1",
     "run-sequence": "^1.0.2",
     "sinon": "^1.12.2",
     "sinon-chai": "^2.7.0",
@@ -5107,7 +5112,7 @@ module.exports={
   },
   "babelBoilerplateOptions": {
     "entryFileName": "index",
-    "exportVarName": "MyLibrary",
+    "exportVarName": "TranslationManager",
     "mochaGlobals": [
       "stub",
       "spy",
@@ -5132,6 +5137,10 @@ var _ainojsAjax = require('ainojs-ajax');
 
 var _ainojsAjax2 = _interopRequireDefault(_ainojsAjax);
 
+var _eventLogger = require('./eventLogger');
+
+var _eventLogger2 = _interopRequireDefault(_eventLogger);
+
 /**
  * @class
  * An awesome script
@@ -5153,10 +5162,11 @@ var AjaxTranslationsLoader = (function () {
   _createClass(AjaxTranslationsLoader, [{
     key: 'load',
     value: function load() {
+      _eventLogger2['default'].log('Ajax');
       _ainojsAjax2['default'].get(this.request).then(function (data) {
-        console.log(data);
+        _eventLogger2['default'].log(data);
       })['catch'](function (data) {
-        console.log(data);
+        _eventLogger2['default'].log(data);
       });
     }
   }, {
@@ -5177,7 +5187,7 @@ var AjaxTranslationsLoader = (function () {
 exports['default'] = AjaxTranslationsLoader;
 module.exports = exports['default'];
 
-},{"ainojs-ajax":3}],34:[function(require,module,exports){
+},{"./eventLogger":35,"ainojs-ajax":3}],34:[function(require,module,exports){
 Object.defineProperty(exports, '__esModule', {
   value: true
 });
@@ -5202,6 +5212,9 @@ var _redisPubsub = require('redis-pubsub');
 
 var _redisPubsub2 = _interopRequireDefault(_redisPubsub);
 
+// import * as redisubsub from 'redis-pubsub';
+// import {Redispubsub} from 'redis-pubsub';
+// import {createChannel} from 'redis-pubsub';
 /*eslint-enable */
 /**
  * @class
@@ -5237,7 +5250,7 @@ var EventBus = (function () {
 exports['default'] = EventBus;
 module.exports = exports['default'];
 
-},{"./eventLogger":35,"./translationSynchronizer":39,"redis-pubsub":29}],35:[function(require,module,exports){
+},{"./eventLogger":35,"./translationSynchronizer":38,"redis-pubsub":29}],35:[function(require,module,exports){
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -5256,10 +5269,10 @@ var EventLogger = (function () {
     _classCallCheck(this, EventLogger);
   }
 
-  _createClass(EventLogger, [{
+  _createClass(EventLogger, null, [{
     key: "log",
     value: function log(message) {
-      console.log(message);
+      EventLogger.log(message);
     }
   }]);
 
@@ -5319,101 +5332,6 @@ Object.defineProperty(exports, '__esModule', {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _ajaxTranslationsLoader = require('./ajaxTranslationsLoader');
-
-var _ajaxTranslationsLoader2 = _interopRequireDefault(_ajaxTranslationsLoader);
-
-/**
- * @class
- * An awesome script
- */
-
-var LocaleStorage = (function () {
-  function LocaleStorage(options) {
-    _classCallCheck(this, LocaleStorage);
-
-    this.loader = options.loader || LocaleStorage.defaultLoader;
-    this.initialize();
-  }
-
-  _createClass(LocaleStorage, [{
-    key: 'initialize',
-    value: function initialize() {
-      // retrieve via loader
-      var _iteratorNormalCompletion = true;
-      var _didIteratorError = false;
-      var _iteratorError = undefined;
-
-      try {
-        for (var _iterator = this.loader.locales[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-          var locale = _step.value;
-
-          this.loader.load(locale, this.sucessCallback, this.failCalllback);
-        }
-      } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion && _iterator['return']) {
-            _iterator['return']();
-          }
-        } finally {
-          if (_didIteratorError) {
-            throw _iteratorError;
-          }
-        }
-      }
-    }
-  }, {
-    key: 'sucessCallback',
-    value: function sucessCallback(data) {
-      // do stuff with data
-      console.log('save');
-      this.save(Object.keys(data)[0], JSON.stringify(data[Object.keys(data)[0]]));
-    }
-  }, {
-    key: 'failCalllback',
-    value: function failCalllback(data) {
-      // do stuff with data
-      console.log('fail');
-      console.log(data);
-    }
-  }, {
-    key: 'save',
-    value: function save(key, value) {
-      window.localStorage.setItem(key, value);
-      console.log('localStorage = ' + key + ' : ' + value);
-    }
-  }, {
-    key: 'load',
-    value: function load(key) {
-      window.localStorage.getItem(key);
-    }
-  }], [{
-    key: 'defaultLoader',
-    get: function get() {
-      return new _ajaxTranslationsLoader2['default']({}, this.sucessCallback, this.failCalllback);
-    }
-  }]);
-
-  return LocaleStorage;
-})();
-
-exports['default'] = LocaleStorage;
-module.exports = exports['default'];
-
-},{"./ajaxTranslationsLoader":33}],38:[function(require,module,exports){
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
 var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -5458,7 +5376,7 @@ var StorageInternationalizer = (function (_Internationalizer) {
 exports['default'] = StorageInternationalizer;
 module.exports = exports['default'];
 
-},{"./internationalizer":36}],39:[function(require,module,exports){
+},{"./internationalizer":36}],38:[function(require,module,exports){
 Object.defineProperty(exports, '__esModule', {
   value: true
 });
@@ -5495,7 +5413,8 @@ var TranslationSynchronizer = (function () {
     value: function sync(message) {
       var translator = new _translator2['default'](message);
       new _storageInternationalizer2['default']().init(translator.resource());
-      this.storage.save(Object.keys(message)[0], JSON.stringify(message[Object.keys(message)[0]]));
+      this.dataKeys = Object.keys(message)[0];
+      this.storage.save(this.dataKeys, JSON.stringify(message[this.dataKeys]));
     }
   }]);
 
@@ -5505,7 +5424,7 @@ var TranslationSynchronizer = (function () {
 exports['default'] = TranslationSynchronizer;
 module.exports = exports['default'];
 
-},{"./storageInternationalizer":38,"./translator":41}],40:[function(require,module,exports){
+},{"./storageInternationalizer":37,"./translator":40}],39:[function(require,module,exports){
 Object.defineProperty(exports, '__esModule', {
   value: true
 });
@@ -5548,7 +5467,7 @@ var TranslationsLoader = (function () {
 exports['default'] = TranslationsLoader;
 module.exports = exports['default'];
 
-},{"./ajaxTranslationsLoader":33}],41:[function(require,module,exports){
+},{"./ajaxTranslationsLoader":33}],40:[function(require,module,exports){
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -5596,7 +5515,7 @@ var Translator = (function () {
 exports["default"] = Translator;
 module.exports = exports["default"];
 
-},{}],42:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 Object.defineProperty(exports, '__esModule', {
   value: true
 });
@@ -5609,9 +5528,7 @@ var _helpersTranslationsLoader = require('./helpers/translationsLoader');
 
 var _helpersTranslationsLoader2 = _interopRequireDefault(_helpersTranslationsLoader);
 
-var _helpersLocaleStorage = require('./helpers/localeStorage');
-
-var _helpersLocaleStorage2 = _interopRequireDefault(_helpersLocaleStorage);
+// import LocaleStorage from './helpers/localeStorage';
 
 var _helpersEventBus = require('./helpers/eventBus');
 
@@ -5627,15 +5544,16 @@ var TranslationManager = function TranslationManager(options) {
 
   this.options = options;
   options.loader = new _helpersTranslationsLoader2['default'](options || {});
-  this.storage = new _helpersLocaleStorage2['default'](options);
-  this.logger = options.logger || console.log;
+  // this.storage = new LocaleStorage(options);
   this.eventBus = new _helpersEventBus2['default'](options);
 };
 
 exports['default'] = TranslationManager;
 module.exports = exports['default'];
 
-},{"./helpers/eventBus":34,"./helpers/localeStorage":37,"./helpers/translationsLoader":40}],43:[function(require,module,exports){
+// export default TranslationManager;
+
+},{"./helpers/eventBus":34,"./helpers/translationsLoader":39}],42:[function(require,module,exports){
 (function (global){
 module.exports = function () {
   global.expect = global.chai.expect;

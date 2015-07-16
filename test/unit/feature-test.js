@@ -1,5 +1,5 @@
 /*eslint-disable */
-import TranslationManager from '../../src/index';
+import TranslationManager from '../../src/index.js';
 
 describe('A Feature tests', () => {
   it('TranslationManager exsists', () => expect(TranslationManager).is.not.undefined);

@@ -14,7 +14,8 @@ class TranslationSynchronizer {
   sync(message) {
     var translator = new Translator(message);
     (new StorageInternationalizer()).init(translator.resource());
-    this.storage.save(Object.keys(message)[0], JSON.stringify(message[Object.keys(message)[0]]));
+    this.dataKeys = Object.keys(message)[0];
+    this.storage.save(this.dataKeys, JSON.stringify(message[this.dataKeys]));
   }
 }
 

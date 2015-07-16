@@ -4,7 +4,12 @@
   <meta charset='utf-8'>
   <title>Tests</title>
   <link rel='stylesheet' href='../node_modules/mocha/mocha.css' />
-
+</head>
+<body>
+  <!-- Required for browser reporter 
+  <script src='../node_modules/redis-pubsub/index.js'></script>
+  <script src='../node_modules/i18n-node/index.js'></script>-->
+  <div id='mocha'></div>
   <!-- Polyfill (required by Babel) -->
   <script src='../node_modules/babel-core/browser-polyfill.js'></script>
 
@@ -13,15 +18,13 @@
   <script src='../node_modules/chai/chai.js'></script>
   <script src='../node_modules/sinon/pkg/sinon.js'></script>
   <script src='../node_modules/sinon-chai/lib/sinon-chai.js'></script>
-
-  <!-- Livereload -->
-  <script src='http://localhost:35729/livereload.js'></script>
-
-  <!-- Load the built library -->
-  <script src='../tmp/__spec-build.js'></script>
-</head>
-<body>
-  <!-- Required for browser reporter -->
-  <div id='mocha'></div>
+  <script src='../dist/library-dist.js'></script>
+   
+  <script>mocha.setup('bdd')</script>
+  <script src="../dist/library-dist.js"></script>
+  <script src="./unit/feature-test.js"></script>
+  <script>
+    mocha.run();
+  </script>
 </body>
 </html>

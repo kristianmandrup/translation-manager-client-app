@@ -7,9 +7,31 @@ function _inherits(subClass, superClass) { if (typeof superClass !== 'function' 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('redis-pubsub'), require('ainojs-ajax'), require('i18n-node')) : typeof define === 'function' && define.amd ? define(['redis-pubsub', 'ainojs-ajax', 'i18n-node'], factory) : global.MyLibrary = factory(global.Redispubsub, global.Ajax, global.i18n);
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('redis-pubsub'), require('ainojs-ajax'), require('i18n-node')) : typeof define === 'function' && define.amd ? define(['redis-pubsub', 'ainojs-ajax', 'i18n-node'], factory) : global.TranslationManager = factory(global.Redispubsub, global.Ajax, global.i18n);
 })(this, function (Redispubsub, Ajax, i18n) {
   'use strict';
+
+  /**
+   * @class
+   * An awesome script
+   */
+
+  var EventLogger = (function () {
+    function EventLogger() {
+      _classCallCheck(this, EventLogger);
+    }
+
+    _createClass(EventLogger, null, [{
+      key: 'log',
+      value: function log(message) {
+        EventLogger.log(message);
+      }
+    }]);
+
+    return EventLogger;
+  })();
+
+  var eventLogger = EventLogger;
 
   var AjaxTranslationsLoader = (function () {
     function AjaxTranslationsLoader(options, sucessCallback, failCallback) {
@@ -27,10 +49,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     _createClass(AjaxTranslationsLoader, [{
       key: 'load',
       value: function load() {
+        eventLogger.log('Ajax');
         Ajax.get(this.request).then(function (data) {
-          console.log(data);
+          eventLogger.log(data);
         })['catch'](function (data) {
-          console.log(data);
+          eventLogger.log(data);
         });
       }
     }, {
@@ -70,102 +93,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
   })();
 
   var translationsLoader = TranslationsLoader;
-
-  var LocaleStorage = (function () {
-    function LocaleStorage(options) {
-      _classCallCheck(this, LocaleStorage);
-
-      this.loader = options.loader || LocaleStorage.defaultLoader;
-      this.initialize();
-    }
-
-    _createClass(LocaleStorage, [{
-      key: 'initialize',
-      value: function initialize() {
-        // retrieve via loader
-        var _iteratorNormalCompletion = true;
-        var _didIteratorError = false;
-        var _iteratorError = undefined;
-
-        try {
-          for (var _iterator = this.loader.locales[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var locale = _step.value;
-
-            this.loader.load(locale, this.sucessCallback, this.failCalllback);
-          }
-        } catch (err) {
-          _didIteratorError = true;
-          _iteratorError = err;
-        } finally {
-          try {
-            if (!_iteratorNormalCompletion && _iterator['return']) {
-              _iterator['return']();
-            }
-          } finally {
-            if (_didIteratorError) {
-              throw _iteratorError;
-            }
-          }
-        }
-      }
-    }, {
-      key: 'sucessCallback',
-      value: function sucessCallback(data) {
-        // do stuff with data
-        console.log('save');
-        this.save(Object.keys(data)[0], JSON.stringify(data[Object.keys(data)[0]]));
-      }
-    }, {
-      key: 'failCalllback',
-      value: function failCalllback(data) {
-        // do stuff with data
-        console.log('fail');
-        console.log(data);
-      }
-    }, {
-      key: 'save',
-      value: function save(key, value) {
-        window.localStorage.setItem(key, value);
-        console.log('localStorage = ' + key + ' : ' + value);
-      }
-    }, {
-      key: 'load',
-      value: function load(key) {
-        window.localStorage.getItem(key);
-      }
-    }], [{
-      key: 'defaultLoader',
-      get: function get() {
-        return new ajaxTranslationsLoader({}, this.sucessCallback, this.failCalllback);
-      }
-    }]);
-
-    return LocaleStorage;
-  })();
-
-  var localeStorage = LocaleStorage;
-
-  /**
-   * @class
-   * An awesome script
-   */
-
-  var EventLogger = (function () {
-    function EventLogger() {
-      _classCallCheck(this, EventLogger);
-    }
-
-    _createClass(EventLogger, [{
-      key: 'log',
-      value: function log(message) {
-        console.log(message);
-      }
-    }]);
-
-    return EventLogger;
-  })();
-
-  var eventLogger = EventLogger;
 
   var Internationalizer = (function () {
     function Internationalizer() {
@@ -265,7 +192,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       value: function sync(message) {
         var translator = new helpers_translator(message);
         new storageInternationalizer().init(translator.resource());
-        this.storage.save(Object.keys(message)[0], JSON.stringify(message[Object.keys(message)[0]]));
+        this.dataKeys = Object.keys(message)[0];
+        this.storage.save(this.dataKeys, JSON.stringify(message[this.dataKeys]));
       }
     }]);
 
@@ -307,13 +235,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
     this.options = options;
     options.loader = new translationsLoader(options || {});
-    this.storage = new localeStorage(options);
-    this.logger = options.logger || console.log;
+    // this.storage = new LocaleStorage(options);
     this.eventBus = new eventBus(options);
   };
 
-  var index = TranslationManager;
+  // export default TranslationManager;
 
-  return index;
+  return TranslationManager;
 });
 //# sourceMappingURL=./library-dist.js.map

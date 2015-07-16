@@ -2,6 +2,9 @@ import EventLogger from './eventLogger';
 import TranslationSynchronizer from './translationSynchronizer';
 /*eslint-disable */
 import Redispubsub from 'redis-pubsub';
+// import * as redisubsub from 'redis-pubsub';
+// import {Redispubsub} from 'redis-pubsub';
+// import {createChannel} from 'redis-pubsub';
 /*eslint-enable */
 /**
  * @class
