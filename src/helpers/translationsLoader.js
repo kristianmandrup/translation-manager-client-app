@@ -12,7 +12,7 @@ class TranslationsLoader {
   }
 
   load(locale, sucessCallback, failCallback) {
-    this.options.restPath = `locale=${locale}`;
+    this.options.restPath = `${locale}`;
     return new AjaxTranslationsLoader(this.options, sucessCallback, failCallback);
   }
 }

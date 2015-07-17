@@ -4,7 +4,7 @@
  */
 class EventLogger {
   static log(message) {
-    EventLogger.log(message);
+    console.log(message);
   }
 }
 

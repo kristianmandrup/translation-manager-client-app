@@ -1,5 +1,4 @@
-import Ajax from 'ainojs-ajax';
-import EventLogger from './eventLogger';
+import xhttp from 'xhttp';
 
 /**
  * @class
@@ -7,7 +6,7 @@ import EventLogger from './eventLogger';
  */
 class AjaxTranslationsLoader {
   constructor(options, sucessCallback, failCallback) {
-    this.host = options.railsHost || '127.0.0.1';
+    this.host = options.railsHost || 'localhost';
     this.port = options.railsPort || 3000;
     this.restPath = options.restPath || AjaxTranslationsLoader.defaultPath;
     this.storage = options.storage;
@@ -21,16 +20,20 @@ class AjaxTranslationsLoader {
   }
 
   get request() {
-    return `'http://${this.host}:${this.port}/translations?${this.restPath}'`; // use String interpolation!
+    return 'http://' + this.host + ':' + this.port + '/translations?locale=' + this.restPath;
   }
 
   load() {
-    EventLogger.log('Ajax');
-    Ajax.get(this.request).then(function(data) {
-      EventLogger.log(data);
-    }).catch(function(data) {
-      EventLogger.log(data);
-    });
+    var localKey = this.restPath;
+    var sucessCallback = this.sucessCallback;
+    xhttp({
+      url: this.request,
+      type: 'form',
+      contantType: 'application/x-www-form-urlencoded'})
+    .then(function(data) {
+      sucessCallback(localKey, data);
+    })
+    .catch(this.failCallback);
   }
 }
 

@@ -1,5 +1,5 @@
 import TranslationsLoader from './helpers/translationsLoader';
-// import LocaleStorage from './helpers/localeStorage';
+import LocaleStorage from './helpers/localeStorage';
 import EventBus from './helpers/eventBus';
 
 /**
@@ -10,9 +10,7 @@ export default class TranslationManager {
   constructor(options) {
     this.options = options;
     options.loader = new TranslationsLoader(options || {});
-    // this.storage = new LocaleStorage(options);
+    this.options.storage = new LocaleStorage(options);
     this.eventBus = new EventBus(options);
   }
 }
-
-// export default TranslationManager;

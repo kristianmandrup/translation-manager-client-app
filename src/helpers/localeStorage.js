@@ -4,11 +4,10 @@ import EventLogger from './eventLogger';
  * @class
  * An awesome script
  */
-export class LocaleStorage {
+class LocaleStorage {
   constructor(options) {
     this.loader = options.loader || LocaleStorage.defaultLoader;
     this.initialize();
-    this.store = options.storage || window.localStorage;
   }
 
   static get defaultLoader() {
@@ -18,9 +17,14 @@ export class LocaleStorage {
       this.failCalllback);
   }
 
+  static get store() {
+    return window.localStorage;
+  }
+
   initialize() {
     // retrieve via loader
     for (let locale of this.loader.locales) {
+      this.dataKeys = locale;
       this.loader.load(
         locale,
         this.sucessCallback,
@@ -28,20 +32,21 @@ export class LocaleStorage {
     }
   }
 
-  sucessCallback(data) {
-    this.dataKeys = Object.keys(data)[0];
-    this.save(this.dataKeys, JSON.stringify(data[this.dataKeys]));
+  sucessCallback(dataKeys, data) {
+    LocaleStorage.save(dataKeys, JSON.stringify(data));
   }
 
   failCalllback(data) {
     EventLogger.log(data);
   }
 
-  save(key, value) {
-    this.store.setItem(key, value);
+  static save(key, value) {
+    LocaleStorage.store.setItem(key, value);
   }
 
   load(key) {
-    this.store.getItem(key);
+    LocaleStorage.store.getItem(key);
   }
 }
+
+export default LocaleStorage;
