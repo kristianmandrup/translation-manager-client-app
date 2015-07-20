@@ -44,7 +44,7 @@ class LocaleStorage {
     LocaleStorage.store.setItem(key, value);
   }
 
-  load(key) {
+  static load(key) {
     LocaleStorage.store.getItem(key);
   }
 }
