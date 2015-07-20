@@ -1,6 +1,5 @@
 // import LocaleStorage from './localeStorage';
 import i18next from 'i18next';
-// import $ from 'jquery';
 
 /**
  * @class
