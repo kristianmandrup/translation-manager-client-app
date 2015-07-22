@@ -1,11 +1,9 @@
 /**
  * @class
- * An awesome script
+ * EventLogger a logger class
  */
-class EventLogger {
+export default class EventLogger {
   static log(message) {
     console.log(message);
   }
 }
-
-export default EventLogger;

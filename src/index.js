@@ -1,20 +1,20 @@
 import TranslationsLoader from './helpers/translationsLoader';
 import LocaleStorage from './helpers/localeStorage';
-import EventBus from './helpers/eventBus';
-import StorageInternationalizer from './helpers/storageInternationalizer';
+import RealTime from './helpers/realTime';
+import Internationalizer from './helpers/internationalizer';
 /**
  * @class
- * An awesome script
+ * TranslationManager a pivot class for translation manager
  */
 export default class TranslationManager {
   constructor(options) {
     this.options = options;
     options.loader = new TranslationsLoader(options || {});
     this.options.storage = new LocaleStorage(options);
-    this.eventBus = new EventBus(options);
+    this.realTime = new RealTime(options);
   }
   translate(options) {
-    var storageInternationalizer = new StorageInternationalizer(options);
-    storageInternationalizer.translate(options);
+    var internationalizer = new Internationalizer(options);
+    internationalizer.translate(options);
   }
 }

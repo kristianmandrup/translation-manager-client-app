@@ -2,9 +2,9 @@ import AjaxTranslationsLoader from './ajaxTranslationsLoader';
 import EventLogger from './eventLogger';
 /**
  * @class
- * An awesome script
+ * LocaleStorage for storage management
  */
-class LocaleStorage {
+export default class LocaleStorage {
   constructor(options) {
     this.loader = options.loader || LocaleStorage.defaultLoader;
     this.initialize();
@@ -48,5 +48,3 @@ class LocaleStorage {
     LocaleStorage.store.getItem(key);
   }
 }
-
-export default LocaleStorage;

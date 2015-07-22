@@ -2,10 +2,10 @@ import AjaxTranslationsLoader from './ajaxTranslationsLoader';
 
 /**
  * @class
- * An awesome script
+ * TranslationsLoader to load all translations
  */
 // performs Ajax Request to get JSON response with locales
-class TranslationsLoader {
+export default class TranslationsLoader {
   constructor(options) {
     this.locales = options.locales;
     this.options = options;
@@ -16,5 +16,3 @@ class TranslationsLoader {
     return new AjaxTranslationsLoader(this.options, sucessCallback, failCallback);
   }
 }
-
-export default TranslationsLoader;

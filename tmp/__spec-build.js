@@ -11,7 +11,7 @@ global.onload = function () {
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../../package.json":317,"./setup":327}],2:[function(require,module,exports){
+},{"../../package.json":317,"./setup":326}],2:[function(require,module,exports){
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 /*eslint-disable */
@@ -20,35 +20,75 @@ var _srcIndexJs = require('../../src/index.js');
 
 var _srcIndexJs2 = _interopRequireDefault(_srcIndexJs);
 
-var _srcHelpersStorageInternationalizerJs = require('../../src/helpers/storageInternationalizer.js');
+var _srcHelpersAjaxTranslationsLoaderJs = require('../../src/helpers/ajaxTranslationsLoader.js');
 
-var _srcHelpersStorageInternationalizerJs2 = _interopRequireDefault(_srcHelpersStorageInternationalizerJs);
+var _srcHelpersAjaxTranslationsLoaderJs2 = _interopRequireDefault(_srcHelpersAjaxTranslationsLoaderJs);
 
-var expect = chai.expect;
+var _srcHelpersRealTimeJs = require('../../src/helpers/realTime.js');
+
+var _srcHelpersRealTimeJs2 = _interopRequireDefault(_srcHelpersRealTimeJs);
+
+var _srcHelpersInternationalizerJs = require('../../src/helpers/internationalizer.js');
+
+var _srcHelpersInternationalizerJs2 = _interopRequireDefault(_srcHelpersInternationalizerJs);
+
+var _srcHelpersTranslationSynchronizerJs = require('../../src/helpers/translationSynchronizer.js');
+
+var _srcHelpersTranslationSynchronizerJs2 = _interopRequireDefault(_srcHelpersTranslationSynchronizerJs);
+
+var translationManager, ajaxTranslationsLoader, realtime, internationalizer, translationSynchronizer, options;
 describe('A Feature tests', function () {
-  var translationManager;
-  var options;
   it('TranslationManager exsists', function () {
     return expect(_srcIndexJs2['default']).is.not.undefined;
   });
   it('Created TranslationManager', function () {
-    options = { 'locales': ['hi', 'en'],
+    options = { 'locales': ['hi', 'en', 'ja', 'fr'],
       'realtimePort': 6379, /*optional. Default value 6379*/
       'realtimeHost': 'localhost', /*optional. Default value localhost*/
       'railsPort': 3000, /*optional. Default value 3000*/
       'railsHost': 'localhost', /*optional. Default value localhost*/
+      'storage': 'window.localStorage',
       'channel': 'realtime_msg', /*optional. Default value realtime_msg*/
       'locale': 'hi', /*optional. Default value 'en'*/
       'key': 'date.abbr_day_names' /*optional. Default value "'date.day_names'"*/
     };
     translationManager = new _srcIndexJs2['default'](options);
   });
+
+  it('AjaxTranslationsLoader exsists', function () {
+    return expect(_srcHelpersAjaxTranslationsLoaderJs2['default']).is.not.undefined;
+  });
+  it('AjaxTranslationsLoader default ajax call', function () {
+    var mockSuccess = function mockSuccess() {
+      console.log('Success');
+    };
+
+    var mockFail = function mockFail() {
+      console.log('Fail');
+    };
+    ajaxTranslationsLoader = new _srcHelpersAjaxTranslationsLoaderJs2['default']({}, mockSuccess, mockFail);
+  });
+  it('Realtime exsists', function () {
+    return expect(_srcHelpersRealTimeJs2['default']).is.not.undefined;
+  });
+  it('Realtime Sync ', function () {
+    realtime = new _srcHelpersRealTimeJs2['default'](options);
+  });
+  it('Internationalizer exsists', function () {
+    return expect(_srcHelpersInternationalizerJs2['default']).is.not.undefined;
+  });
   it('Translation using i18next', function () {
-    translationManager.translate(options);
+    internationalizer = new _srcHelpersInternationalizerJs2['default'](options);
+  });
+  it('TranslationSynchronizer exsists', function () {
+    return expect(_srcHelpersTranslationSynchronizerJs2['default']).is.not.undefined;
+  });
+  it('TranslationSynchronizer using i18next', function () {
+    translationSynchronizer = new _srcHelpersTranslationSynchronizerJs2['default'](options);
   });
 });
 
-},{"../../src/helpers/storageInternationalizer.js":322,"../../src/index.js":326}],3:[function(require,module,exports){
+},{"../../src/helpers/ajaxTranslationsLoader.js":318,"../../src/helpers/internationalizer.js":320,"../../src/helpers/realTime.js":322,"../../src/helpers/translationSynchronizer.js":323,"../../src/index.js":325}],3:[function(require,module,exports){
 
 },{}],4:[function(require,module,exports){
 arguments[4][3][0].apply(exports,arguments)
@@ -51182,7 +51222,7 @@ var _xhttp2 = _interopRequireDefault(_xhttp);
 
 /**
  * @class
- * An awesome script
+ * AjaxTranslationsLoader to load the translations
  */
 
 var AjaxTranslationsLoader = (function () {
@@ -51191,8 +51231,7 @@ var AjaxTranslationsLoader = (function () {
 
     this.host = options.railsHost || 'localhost';
     this.port = options.railsPort || 3000;
-    this.restPath = options.restPath || AjaxTranslationsLoader.defaultPath;
-    this.storage = options.storage;
+    this.restPath = options.restPath || this.defaultPath;
     this.sucessCallback = sucessCallback;
     this.failCallback = failCallback;
     this.load();
@@ -51211,14 +51250,24 @@ var AjaxTranslationsLoader = (function () {
       })['catch'](this.failCallback);
     }
   }, {
-    key: 'request',
-    get: function get() {
-      return 'http://' + this.host + ':' + this.port + '/translations?locale=' + this.restPath;
-    }
-  }], [{
     key: 'defaultPath',
     get: function get() {
       return '/translations';
+    }
+  }, {
+    key: 'request',
+    get: function get() {
+      return this.defaultUrl + ':' + this.defaultPort + '/translations?locale=' + this.restPath;
+    }
+  }, {
+    key: 'defaultUrl',
+    get: function get() {
+      return 'http://127.0.0.1';
+    }
+  }, {
+    key: 'defaultPort',
+    get: function get() {
+      return 3000;
     }
   }]);
 
@@ -51229,67 +51278,6 @@ exports['default'] = AjaxTranslationsLoader;
 module.exports = exports['default'];
 
 },{"xhttp":311}],319:[function(require,module,exports){
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _eventLogger = require('./eventLogger');
-
-var _eventLogger2 = _interopRequireDefault(_eventLogger);
-
-var _translationSynchronizer = require('./translationSynchronizer');
-
-var _translationSynchronizer2 = _interopRequireDefault(_translationSynchronizer);
-
-/*eslint-disable */
-
-var _socketIoClient = require('socket.io-client');
-
-var _socketIoClient2 = _interopRequireDefault(_socketIoClient);
-
-/*eslint-enable */
-/**
- * @class
- * An awesome script
- */
-
-var EventBus = function EventBus(options) {
-  _classCallCheck(this, EventBus);
-
-  this.eventLogger = new _eventLogger2['default'](options);
-  this.translationSynchronizer = new _translationSynchronizer2['default'](options);
-  var socket = (0, _socketIoClient2['default'])('http://localhost:5001');
-  socket.connect();
-  socket.on('realtime_msg', function (data) {
-    console.log(data);
-    // socket.emit('my other event', {my: 'data'});
-  });
-  //this.channel = Redispubsub.createChannel(
-  //  options.realtimePort || 6379,
-  //  options.realtimeHost || 'localhost',
-  //  options.channel || 'realtime_msg');
-  // this.init();
-}
-
-// init() {
-// var me = this;
-//this.channel.on('connect', function() {
-//  me.channel.on('message', function(msg) {
-//    me.eventLogger.log(msg.msg);
-//    me.translationSynchronizer.sync(msg);
-//  });
-// });
-// }
-;
-
-exports['default'] = EventBus;
-module.exports = exports['default'];
-
-},{"./eventLogger":320,"./translationSynchronizer":323,"socket.io-client":261}],320:[function(require,module,exports){
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -51300,7 +51288,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 /**
  * @class
- * An awesome script
+ * EventLogger a logger class
  */
 
 var EventLogger = (function () {
@@ -51321,7 +51309,73 @@ var EventLogger = (function () {
 exports["default"] = EventLogger;
 module.exports = exports["default"];
 
-},{}],321:[function(require,module,exports){
+},{}],320:[function(require,module,exports){
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _i18next = require('i18next');
+
+var _i18next2 = _interopRequireDefault(_i18next);
+
+var _eventLogger = require('./eventLogger');
+
+var _eventLogger2 = _interopRequireDefault(_eventLogger);
+
+/**
+ * @class
+ * StorageInternationalizer manages translation using i18next
+ */
+
+var Internationalizer = (function () {
+  function Internationalizer(options) {
+    _classCallCheck(this, Internationalizer);
+
+    this.locale = options.locale;
+    this.key = options.key;
+    this.init(this.locale);
+    this.translate(this.locale, this.key);
+  }
+
+  _createClass(Internationalizer, [{
+    key: 'init',
+    value: function init(locale) {
+      _i18next2['default'].init(this.configurationFor(locale));
+    }
+  }, {
+    key: 'configurationFor',
+    value: function configurationFor(locale) {
+      return { resStore: { locale: { translation: JSON.parse(window.localStorage.getItem(locale)) } } };
+    }
+  }, {
+    key: 'translate',
+    value: function translate(locale, key) {
+      var translated = {};
+      if (key && locale) {
+        translated = _i18next2['default'].t(key);
+      } else if (locale) {
+        translated = JSON.parse(window.localStorage.getItem(locale));
+      } else {
+        translated = JSON.parse(window.localStorage.getItem('en'));
+      }
+      _eventLogger2['default'].log(translated);
+      return translated;
+    }
+  }]);
+
+  return Internationalizer;
+})();
+
+exports['default'] = Internationalizer;
+module.exports = exports['default'];
+
+},{"./eventLogger":319,"i18next":250}],321:[function(require,module,exports){
 Object.defineProperty(exports, '__esModule', {
   value: true
 });
@@ -51342,7 +51396,7 @@ var _eventLogger2 = _interopRequireDefault(_eventLogger);
 
 /**
  * @class
- * An awesome script
+ * LocaleStorage for storage management
  */
 
 var LocaleStorage = (function () {
@@ -51421,7 +51475,7 @@ var LocaleStorage = (function () {
 exports['default'] = LocaleStorage;
 module.exports = exports['default'];
 
-},{"./ajaxTranslationsLoader":318,"./eventLogger":320}],322:[function(require,module,exports){
+},{"./ajaxTranslationsLoader":318,"./eventLogger":319}],322:[function(require,module,exports){
 Object.defineProperty(exports, '__esModule', {
   value: true
 });
@@ -51432,59 +51486,82 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-// import LocaleStorage from './localeStorage';
+var _eventLogger = require('./eventLogger');
 
-var _i18next = require('i18next');
+var _eventLogger2 = _interopRequireDefault(_eventLogger);
 
-var _i18next2 = _interopRequireDefault(_i18next);
+var _translationSynchronizer = require('./translationSynchronizer');
 
+var _translationSynchronizer2 = _interopRequireDefault(_translationSynchronizer);
+
+/*eslint-disable */
+
+var _socketIoClient = require('socket.io-client');
+
+var _socketIoClient2 = _interopRequireDefault(_socketIoClient);
+
+/*eslint-enable */
 /**
  * @class
- * An awesome script
+ * Realtime for real time events
  */
 
-var StorageInternationalizer = (function () {
-  function StorageInternationalizer(options) {
-    _classCallCheck(this, StorageInternationalizer);
+var Realtime = (function () {
+  function Realtime(options) {
+    _classCallCheck(this, Realtime);
 
-    this.init(options);
-    this.translate(options);
+    this.options = options;
+    this.socketUrl = options.socketUrl || this.defaultSocketUrl;
+    this.connect();
   }
 
-  _createClass(StorageInternationalizer, [{
-    key: 'init',
-    value: function init(options) {
-      _i18next2['default'].init(this.configurationFor(options.locale));
+  _createClass(Realtime, [{
+    key: 'connect',
+    value: function connect() {
+      var socket = _socketIoClient2['default'].connect(this.socketUrl);
+      socket.on('connect', function () {
+        _eventLogger2['default'].log('connected');
+      });
+      socket.on('realtime_msg', function (message) {
+        _eventLogger2['default'].log(message);
+        var translationSynchronizer = new _translationSynchronizer2['default'](this.options);
+        translationSynchronizer.sync(message);
+      });
     }
   }, {
-    key: 'configurationFor',
-    value: function configurationFor(locale) {
-      return { resStore: { locale: { translation: JSON.parse(window.localStorage.getItem(locale)) } } };
+    key: 'defaultSocketUrl',
+    get: function get() {
+      return [[this.defaultUrl, this.defaultPort].join(':'), this.defaultParam].join('?');
     }
   }, {
-    key: 'translate',
-    value: function translate(options) {
-      var translated = {};
-      if (options.key && options.locale) {
-        console.log(_i18next2['default'].t(options.key));
-        translated = _i18next2['default'].t(options.key);
-      } else if (options.locale) {
-        translated = JSON.parse(window.localStorage.getItem(options.locale));
-      } else {
-        translated = JSON.parse(window.localStorage.getItem('en'));
-      }
-      console.log(translated);
-      return translated;
+    key: 'defaultUrl',
+    get: function get() {
+      return 'http://127.0.0.1';
+    }
+  }, {
+    key: 'defaultPort',
+    get: function get() {
+      return '5001';
+    }
+  }, {
+    key: 'defaultParam',
+    get: function get() {
+      return '_rtUserId=42&_rtToken=610f36bf16d89c12f400414ce1fd8ab3';
+    }
+  }, {
+    key: 'options',
+    get: function get() {
+      return this.options;
     }
   }]);
 
-  return StorageInternationalizer;
+  return Realtime;
 })();
 
-exports['default'] = StorageInternationalizer;
+exports['default'] = Realtime;
 module.exports = exports['default'];
 
-},{"i18next":250}],323:[function(require,module,exports){
+},{"./eventLogger":319,"./translationSynchronizer":323,"socket.io-client":261}],323:[function(require,module,exports){
 Object.defineProperty(exports, '__esModule', {
   value: true
 });
@@ -51495,17 +51572,13 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _storageInternationalizer = require('./storageInternationalizer');
+var _localeStorage = require('./localeStorage');
 
-var _storageInternationalizer2 = _interopRequireDefault(_storageInternationalizer);
-
-var _translator = require('./translator');
-
-var _translator2 = _interopRequireDefault(_translator);
+var _localeStorage2 = _interopRequireDefault(_localeStorage);
 
 /**
  * @class
- * An awesome script
+ * TranslationSynchronizer to synchronize translation
  */
 // syncs with Redis DB via Realtime Eventbus
 
@@ -51513,16 +51586,14 @@ var TranslationSynchronizer = (function () {
   function TranslationSynchronizer(options) {
     _classCallCheck(this, TranslationSynchronizer);
 
-    this.storage = options.storage;
+    this.options = options;
   }
 
   _createClass(TranslationSynchronizer, [{
     key: 'sync',
     value: function sync(message) {
-      var translator = new _translator2['default'](message);
-      new _storageInternationalizer2['default']().init(translator.resource());
       this.dataKeys = Object.keys(message)[0];
-      this.storage.save(this.dataKeys, JSON.stringify(message[this.dataKeys]));
+      _localeStorage2['default'].save(this.dataKeys, JSON.stringify(message[this.dataKeys]));
     }
   }]);
 
@@ -51532,7 +51603,7 @@ var TranslationSynchronizer = (function () {
 exports['default'] = TranslationSynchronizer;
 module.exports = exports['default'];
 
-},{"./storageInternationalizer":322,"./translator":325}],324:[function(require,module,exports){
+},{"./localeStorage":321}],324:[function(require,module,exports){
 Object.defineProperty(exports, '__esModule', {
   value: true
 });
@@ -51549,7 +51620,7 @@ var _ajaxTranslationsLoader2 = _interopRequireDefault(_ajaxTranslationsLoader);
 
 /**
  * @class
- * An awesome script
+ * TranslationsLoader to load all translations
  */
 // performs Ajax Request to get JSON response with locales
 
@@ -51576,54 +51647,6 @@ exports['default'] = TranslationsLoader;
 module.exports = exports['default'];
 
 },{"./ajaxTranslationsLoader":318}],325:[function(require,module,exports){
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * @class
- * An awesome script
- */
-
-var Translator = (function () {
-  function Translator() {
-    _classCallCheck(this, Translator);
-  }
-
-  _createClass(Translator, [{
-    key: "contructor",
-    value: function contructor(message) {
-      this.key = Object.keys(message)[0];
-      this.value = JSON.stringify(message[this.key]);
-    }
-  }, {
-    key: "locale",
-    get: function get() {
-      return localStorage.getItem(this.key);
-    }
-  }, {
-    key: "translation",
-    get: function get() {
-      return JSON.parse(this.locale);
-    }
-
-    // get resource() {
-    //   return {key: {translation: value}};
-    // }
-
-  }]);
-
-  return Translator;
-})();
-
-exports["default"] = Translator;
-module.exports = exports["default"];
-
-},{}],326:[function(require,module,exports){
 Object.defineProperty(exports, '__esModule', {
   value: true
 });
@@ -51642,17 +51665,17 @@ var _helpersLocaleStorage = require('./helpers/localeStorage');
 
 var _helpersLocaleStorage2 = _interopRequireDefault(_helpersLocaleStorage);
 
-var _helpersEventBus = require('./helpers/eventBus');
+var _helpersRealTime = require('./helpers/realTime');
 
-var _helpersEventBus2 = _interopRequireDefault(_helpersEventBus);
+var _helpersRealTime2 = _interopRequireDefault(_helpersRealTime);
 
-var _helpersStorageInternationalizer = require('./helpers/storageInternationalizer');
+var _helpersInternationalizer = require('./helpers/internationalizer');
 
-var _helpersStorageInternationalizer2 = _interopRequireDefault(_helpersStorageInternationalizer);
+var _helpersInternationalizer2 = _interopRequireDefault(_helpersInternationalizer);
 
 /**
  * @class
- * An awesome script
+ * TranslationManager a pivot class for translation manager
  */
 
 var TranslationManager = (function () {
@@ -51662,14 +51685,14 @@ var TranslationManager = (function () {
     this.options = options;
     options.loader = new _helpersTranslationsLoader2['default'](options || {});
     this.options.storage = new _helpersLocaleStorage2['default'](options);
-    this.eventBus = new _helpersEventBus2['default'](options);
+    this.realTime = new _helpersRealTime2['default'](options);
   }
 
   _createClass(TranslationManager, [{
     key: 'translate',
     value: function translate(options) {
-      var storageInternationalizer = new _helpersStorageInternationalizer2['default'](options);
-      storageInternationalizer.translate(options);
+      var internationalizer = new _helpersInternationalizer2['default'](options);
+      internationalizer.translate(options);
     }
   }]);
 
@@ -51679,7 +51702,7 @@ var TranslationManager = (function () {
 exports['default'] = TranslationManager;
 module.exports = exports['default'];
 
-},{"./helpers/eventBus":319,"./helpers/localeStorage":321,"./helpers/storageInternationalizer":322,"./helpers/translationsLoader":324}],327:[function(require,module,exports){
+},{"./helpers/internationalizer":320,"./helpers/localeStorage":321,"./helpers/realTime":322,"./helpers/translationsLoader":324}],326:[function(require,module,exports){
 (function (global){
 module.exports = function () {
   global.expect = global.chai.expect;

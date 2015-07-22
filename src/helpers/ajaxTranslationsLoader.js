@@ -2,25 +2,32 @@ import xhttp from 'xhttp';
 
 /**
  * @class
- * An awesome script
+ * AjaxTranslationsLoader to load the translations
  */
-class AjaxTranslationsLoader {
+export default class AjaxTranslationsLoader {
   constructor(options, sucessCallback, failCallback) {
     this.host = options.railsHost || 'localhost';
     this.port = options.railsPort || 3000;
-    this.restPath = options.restPath || AjaxTranslationsLoader.defaultPath;
-    this.storage = options.storage;
+    this.restPath = options.restPath || this.defaultPath;
     this.sucessCallback = sucessCallback;
     this.failCallback = failCallback;
     this.load();
   }
 
-  static get defaultPath() {
+  get defaultPath() {
     return '/translations';
   }
 
   get request() {
-    return 'http://' + this.host + ':' + this.port + '/translations?locale=' + this.restPath;
+    return this.defaultUrl + ':' + this.defaultPort + '/translations?locale=' + this.restPath;
+  }
+
+  get defaultUrl() {
+    return 'http://127.0.0.1';
+  }
+
+  get defaultPort() {
+    return 3000;
   }
 
   load() {
@@ -36,5 +43,3 @@ class AjaxTranslationsLoader {
     .catch(this.failCallback);
   }
 }
-
-export default AjaxTranslationsLoader;

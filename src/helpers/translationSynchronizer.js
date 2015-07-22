@@ -1,22 +1,17 @@
-import StorageInternationalizer from './storageInternationalizer';
-import Translator from './translator';
+import LocaleStorage from './localeStorage';
 
 /**
  * @class
- * An awesome script
+ * TranslationSynchronizer to synchronize translation
  */
 // syncs with Redis DB via Realtime Eventbus
-class TranslationSynchronizer {
+export default class TranslationSynchronizer {
   constructor(options) {
-    this.storage = options.storage;
+    this.options = options;
   }
 
   sync(message) {
-    var translator = new Translator(message);
-    (new StorageInternationalizer()).init(translator.resource());
     this.dataKeys = Object.keys(message)[0];
-    this.storage.save(this.dataKeys, JSON.stringify(message[this.dataKeys]));
+    LocaleStorage.save(this.dataKeys, JSON.stringify(message[this.dataKeys]));
   }
 }
-
-export default TranslationSynchronizer;
