@@ -22,14 +22,24 @@ export default class LocaleStorage {
   }
 
   initialize() {
-    // retrieve via loader
-    for (let locale of this.loader.locales) {
+    return this.loader.locales ? this.loadAllLocales(this.loader.locales) : this.loadDefaultLocale();
+  }
+
+  loadAllLocales(locales) {
+    for (let locale of locales) {
       this.dataKeys = locale;
       this.loader.load(
         locale,
         this.sucessCallback,
         this.failCalllback);
     }
+  }
+
+  loadDefaultLocale() {
+    this.loader.load(
+      'en',
+      this.sucessCallback,
+      this.failCalllback);
   }
 
   sucessCallback(dataKeys, data) {

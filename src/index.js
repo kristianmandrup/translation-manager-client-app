@@ -13,8 +13,9 @@ export default class TranslationManager {
     this.options.storage = new LocaleStorage(options);
     this.realTime = new RealTime(options);
   }
+
   translate(options) {
-    var internationalizer = new Internationalizer(options);
+    let internationalizer = new Internationalizer(options);
     internationalizer.translate(options);
   }
 }

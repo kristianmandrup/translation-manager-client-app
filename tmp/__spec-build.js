@@ -36,7 +36,17 @@ var _srcHelpersTranslationSynchronizerJs = require('../../src/helpers/translatio
 
 var _srcHelpersTranslationSynchronizerJs2 = _interopRequireDefault(_srcHelpersTranslationSynchronizerJs);
 
-var translationManager, ajaxTranslationsLoader, realtime, internationalizer, translationSynchronizer, options;
+var _srcHelpersEventLogger = require('../../src/helpers/eventLogger');
+
+var _srcHelpersEventLogger2 = _interopRequireDefault(_srcHelpersEventLogger);
+
+var translationManager = undefined;
+var ajaxTranslationsLoader = undefined;
+var realtime = undefined;
+var internationalizer = undefined;
+var translationSynchronizer = undefined;
+var options = undefined;
+
 describe('A Feature tests', function () {
   it('TranslationManager exsists', function () {
     return expect(_srcIndexJs2['default']).is.not.undefined;
@@ -45,8 +55,8 @@ describe('A Feature tests', function () {
     options = { 'locales': ['hi', 'en', 'ja', 'fr'],
       'realtimePort': 6379, /*optional. Default value 6379*/
       'realtimeHost': 'localhost', /*optional. Default value localhost*/
-      'railsPort': 3000, /*optional. Default value 3000*/
-      'railsHost': 'localhost', /*optional. Default value localhost*/
+      'restPort': 3000, /*optional. Default value 3000*/
+      'restDomain': 'http://127.0.0.1', /*optional. Default value localhost*/
       'storage': 'window.localStorage',
       'channel': 'realtime_msg', /*optional. Default value realtime_msg*/
       'locale': 'hi', /*optional. Default value 'en'*/
@@ -60,11 +70,11 @@ describe('A Feature tests', function () {
   });
   it('AjaxTranslationsLoader default ajax call', function () {
     var mockSuccess = function mockSuccess() {
-      console.log('Success');
+      _srcHelpersEventLogger2['default'].log('Success');
     };
 
     var mockFail = function mockFail() {
-      console.log('Fail');
+      _srcHelpersEventLogger2['default'].log('Fail');
     };
     ajaxTranslationsLoader = new _srcHelpersAjaxTranslationsLoaderJs2['default']({}, mockSuccess, mockFail);
   });
@@ -88,7 +98,7 @@ describe('A Feature tests', function () {
   });
 });
 
-},{"../../src/helpers/ajaxTranslationsLoader.js":318,"../../src/helpers/internationalizer.js":320,"../../src/helpers/realTime.js":322,"../../src/helpers/translationSynchronizer.js":323,"../../src/index.js":325}],3:[function(require,module,exports){
+},{"../../src/helpers/ajaxTranslationsLoader.js":318,"../../src/helpers/eventLogger":319,"../../src/helpers/internationalizer.js":320,"../../src/helpers/realTime.js":322,"../../src/helpers/translationSynchronizer.js":323,"../../src/index.js":325}],3:[function(require,module,exports){
 
 },{}],4:[function(require,module,exports){
 arguments[4][3][0].apply(exports,arguments)
@@ -51123,9 +51133,9 @@ module.exports = function (promiseConstructor) {
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"_process":158}],317:[function(require,module,exports){
 module.exports={
-  "name": "babel-library-boilerplate",
-  "version": "3.1.0",
-  "description": "Author libraries in ES2015 for Node and the browser.",
+  "name": "translation-manager-client-app",
+  "version": "0.1.0",
+  "description": "TranslationManager client app",
   "main": "dist/library-dist.js",
   "scripts": {
     "test": "gulp",
@@ -51135,25 +51145,21 @@ module.exports={
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/babel/babel-library-boilerplate.git"
+    "url": "https://github.com/smigit/translation-manager-client-app.git"
   },
   "keywords": [
-    "boilerplate",
+    "translation",
+    "manager",
     "es6",
     "es2015",
     "node",
-    "starter",
-    "kit",
-    "transpile",
-    "6to5",
     "babel"
   ],
-  "author": "Jmeas",
-  "license": "MIT",
+  "author": "Aspire Software",
   "bugs": {
-    "url": "https://github.com/babel/babel-library-boilerplate/issues"
+    "url": "https://github.com/smigit/translation-manager-client-app/issues"
   },
-  "homepage": "https://github.com/babel/babel-library-boilerplate",
+  "homepage": "https://github.com/smigit/translation-manager-client-app",
   "devDependencies": {
     "babel": "^5.0.0",
     "babel-core": "^5.2.17",
@@ -51223,44 +51229,65 @@ var _xhttp2 = _interopRequireDefault(_xhttp);
 /**
  * @class
  * AjaxTranslationsLoader to load the translations
+ * @options (Object)
+ *   restDomain, restPort, restPath, localeParam
  */
 
 var AjaxTranslationsLoader = (function () {
   function AjaxTranslationsLoader(options, sucessCallback, failCallback) {
     _classCallCheck(this, AjaxTranslationsLoader);
 
-    this.host = options.railsHost || 'localhost';
-    this.port = options.railsPort || 3000;
-    this.restPath = options.restPath || this.defaultPath;
+    this.init(options);
     this.sucessCallback = sucessCallback;
     this.failCallback = failCallback;
     this.load();
   }
 
   _createClass(AjaxTranslationsLoader, [{
+    key: 'init',
+    value: function init(options) {
+      this.domain = options.restDomain || this.defaultDomain;
+      this.port = options.restPort || this.defaultPort;
+      this.restPath = options.restPath;
+      this.localeParam = options.localeParam || this.defaultLocaleParam;
+    }
+  }, {
     key: 'load',
     value: function load() {
-      var localKey = this.restPath;
+      var localeKey = this.restPath;
       var sucessCallback = this.sucessCallback;
       (0, _xhttp2['default'])({
         url: this.request,
         type: 'form',
         contantType: 'application/x-www-form-urlencoded' }).then(function (data) {
-        sucessCallback(localKey, data);
+        sucessCallback(localeKey, data);
       })['catch'](this.failCallback);
     }
   }, {
-    key: 'defaultPath',
+    key: 'localePath',
     get: function get() {
-      return '/translations';
+      return [this.localeParam, this.restPath].join('=');
     }
   }, {
     key: 'request',
     get: function get() {
-      return this.defaultUrl + ':' + this.defaultPort + '/translations?locale=' + this.restPath;
+      return [[[this.domain, this.port].join(':'), this.defaultPath].join('/'), this.localePath].join('?');
     }
   }, {
-    key: 'defaultUrl',
+    key: 'defaultPath',
+
+    // private
+
+    get: function get() {
+      return 'translations';
+    }
+  }, {
+    key: 'defaultLocaleParam',
+    get: function get() {
+      return 'locale';
+    }
+  }, {
+    key: 'defaultDomain',
     get: function get() {
       return 'http://127.0.0.1';
     }
@@ -51324,21 +51351,20 @@ var _i18next = require('i18next');
 
 var _i18next2 = _interopRequireDefault(_i18next);
 
-var _eventLogger = require('./eventLogger');
-
-var _eventLogger2 = _interopRequireDefault(_eventLogger);
-
 /**
  * @class
  * StorageInternationalizer manages translation using i18next
  */
 
 var Internationalizer = (function () {
-  function Internationalizer(options) {
+  function Internationalizer() {
+    var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
     _classCallCheck(this, Internationalizer);
 
     this.locale = options.locale;
     this.key = options.key;
+    this.defaultLocale = options.defaultLocale || 'en';
     this.init(this.locale);
     this.translate(this.locale, this.key);
   }
@@ -51356,16 +51382,18 @@ var Internationalizer = (function () {
   }, {
     key: 'translate',
     value: function translate(locale, key) {
-      var translated = {};
-      if (key && locale) {
-        translated = _i18next2['default'].t(key);
-      } else if (locale) {
-        translated = JSON.parse(window.localStorage.getItem(locale));
-      } else {
-        translated = JSON.parse(window.localStorage.getItem('en'));
-      }
-      _eventLogger2['default'].log(translated);
-      return translated;
+      return key ? this.translation(locale, key) : this.allTranslations(locale);
+    }
+  }, {
+    key: 'translation',
+    value: function translation(key) {
+      return _i18next2['default'].t(key);
+    }
+  }, {
+    key: 'allTranslations',
+    value: function allTranslations(locale) {
+      var translations = window.localStorage.getItem(locale || this.defaultLocale);
+      return JSON.parse(translations);
     }
   }]);
 
@@ -51375,7 +51403,7 @@ var Internationalizer = (function () {
 exports['default'] = Internationalizer;
 module.exports = exports['default'];
 
-},{"./eventLogger":319,"i18next":250}],321:[function(require,module,exports){
+},{"i18next":250}],321:[function(require,module,exports){
 Object.defineProperty(exports, '__esModule', {
   value: true
 });
@@ -51410,13 +51438,17 @@ var LocaleStorage = (function () {
   _createClass(LocaleStorage, [{
     key: 'initialize',
     value: function initialize() {
-      // retrieve via loader
+      return this.loader.locales ? this.loadAllLocales(this.loader.locales) : this.loadDefaultLocale();
+    }
+  }, {
+    key: 'loadAllLocales',
+    value: function loadAllLocales(locales) {
       var _iteratorNormalCompletion = true;
       var _didIteratorError = false;
       var _iteratorError = undefined;
 
       try {
-        for (var _iterator = this.loader.locales[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        for (var _iterator = locales[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
           var locale = _step.value;
 
           this.dataKeys = locale;
@@ -51436,6 +51468,11 @@ var LocaleStorage = (function () {
           }
         }
       }
+    }
+  }, {
+    key: 'loadDefaultLocale',
+    value: function loadDefaultLocale() {
+      this.loader.load('en', this.sucessCallback, this.failCalllback);
     }
   }, {
     key: 'sucessCallback',

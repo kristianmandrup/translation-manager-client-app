@@ -37,13 +37,13 @@ export default class Realtime {
   }
 
   connect() {
-    var socket = io.connect(this.socketUrl);
+    let socket = io.connect(this.socketUrl);
     socket.on('connect', function() {
       EventLogger.log('connected');
     });
     socket.on('realtime_msg', function(message) {
       EventLogger.log(message);
-      var translationSynchronizer = new TranslationSynchronizer(this.options);
+      let translationSynchronizer = new TranslationSynchronizer(this.options);
       translationSynchronizer.sync(message);
     });
   }

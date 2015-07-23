@@ -4,21 +4,23 @@ import AjaxTranslationsLoader from '../../src/helpers/ajaxTranslationsLoader.js'
 import Realtime from '../../src/helpers/realTime.js';
 import Internationalizer from '../../src/helpers/internationalizer.js';
 import TranslationSynchronizer from '../../src/helpers/translationSynchronizer.js';
+import EventLogger from '../../src/helpers/eventLogger';
 
-var translationManager,
-    ajaxTranslationsLoader,
-    realtime,
-    internationalizer,
-    translationSynchronizer,
-    options;
+let translationManager;
+let ajaxTranslationsLoader;
+let realtime;
+let internationalizer;
+let translationSynchronizer;
+let options;
+
 describe('A Feature tests', () => {
   it('TranslationManager exsists', () => expect(TranslationManager).is.not.undefined);
   it('Created TranslationManager', () => {
     options = {'locales': ['hi', 'en', 'ja', 'fr'],
       'realtimePort': 6379, /*optional. Default value 6379*/
       'realtimeHost': 'localhost', /*optional. Default value localhost*/
-      'railsPort': 3000, /*optional. Default value 3000*/
-      'railsHost': 'localhost', /*optional. Default value localhost*/
+      'restPort': 3000, /*optional. Default value 3000*/
+      'restDomain': 'http://127.0.0.1', /*optional. Default value localhost*/
       'storage' : 'window.localStorage',
       'channel': 'realtime_msg', /*optional. Default value realtime_msg*/
       'locale' : 'hi', /*optional. Default value 'en'*/
@@ -26,15 +28,15 @@ describe('A Feature tests', () => {
     };
     translationManager = new TranslationManager(options);
   });
-  
+
   it('AjaxTranslationsLoader exsists', () => expect(AjaxTranslationsLoader).is.not.undefined);
   it('AjaxTranslationsLoader default ajax call', () => {
-    var mockSuccess = function() {
-      console.log('Success');
+    let mockSuccess = function() {
+      EventLogger.log('Success');
     }
 
-    var mockFail = function() {
-      console.log('Fail');
+    let mockFail = function() {
+      EventLogger.log('Fail');
     }
     ajaxTranslationsLoader = new AjaxTranslationsLoader({}, mockSuccess, mockFail);
   });

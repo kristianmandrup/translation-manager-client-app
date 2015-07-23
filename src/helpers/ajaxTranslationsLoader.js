@@ -3,43 +3,60 @@ import xhttp from 'xhttp';
 /**
  * @class
  * AjaxTranslationsLoader to load the translations
+ * @options (Object)
+ *   restDomain, restPort, restPath, localeParam
  */
 export default class AjaxTranslationsLoader {
   constructor(options, sucessCallback, failCallback) {
-    this.host = options.railsHost || 'localhost';
-    this.port = options.railsPort || 3000;
-    this.restPath = options.restPath || this.defaultPath;
+    this.init(options);
     this.sucessCallback = sucessCallback;
     this.failCallback = failCallback;
     this.load();
   }
 
-  get defaultPath() {
-    return '/translations';
+  init(options) {
+    this.domain = options.restDomain || this.defaultDomain;
+    this.port = options.restPort || this.defaultPort;
+    this.restPath = options.restPath;
+    this.localeParam = options.localeParam || this.defaultLocaleParam;
+  }
+
+  get localePath() {
+    return [this.localeParam, this.restPath].join('=');
   }
 
   get request() {
-    return this.defaultUrl + ':' + this.defaultPort + '/translations?locale=' + this.restPath;
-  }
-
-  get defaultUrl() {
-    return 'http://127.0.0.1';
-  }
-
-  get defaultPort() {
-    return 3000;
+    return [[[this.domain, this.port].join(':'), this.defaultPath].join('/'), this.localePath].join('?');
   }
 
   load() {
-    var localKey = this.restPath;
-    var sucessCallback = this.sucessCallback;
+    let localeKey = this.restPath;
+    let sucessCallback = this.sucessCallback;
     xhttp({
       url: this.request,
       type: 'form',
       contantType: 'application/x-www-form-urlencoded'})
     .then(function(data) {
-      sucessCallback(localKey, data);
+      sucessCallback(localeKey, data);
     })
     .catch(this.failCallback);
+  }
+
+  // private
+
+  get defaultPath() {
+    return 'translations';
+  }
+
+  get defaultLocaleParam() {
+    return 'locale';
+  }
+
+  get defaultDomain() {
+    return 'http://127.0.0.1';
+  }
+
+  get defaultPort() {
+    return 3000;
   }
 }

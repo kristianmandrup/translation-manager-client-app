@@ -1,7 +1,7 @@
 {
-  "name": "babel-library-boilerplate",
-  "version": "3.1.0",
-  "description": "Author libraries in ES2015 for Node and the browser.",
+  "name": "translation-manager-client-app",
+  "version": "0.1.0",
+  "description": "TranslationManager client app",
   "main": "dist/library-dist.js",
   "scripts": {
     "test": "gulp",
@@ -11,25 +11,21 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/babel/babel-library-boilerplate.git"
+    "url": "https://github.com/smigit/translation-manager-client-app.git"
   },
   "keywords": [
-    "boilerplate",
+    "translation",
+    "manager",
     "es6",
     "es2015",
     "node",
-    "starter",
-    "kit",
-    "transpile",
-    "6to5",
     "babel"
   ],
-  "author": "Jmeas",
-  "license": "MIT",
+  "author": "Aspire Software",
   "bugs": {
-    "url": "https://github.com/babel/babel-library-boilerplate/issues"
+    "url": "https://github.com/smigit/translation-manager-client-app/issues"
   },
-  "homepage": "https://github.com/babel/babel-library-boilerplate",
+  "homepage": "https://github.com/smigit/translation-manager-client-app",
   "devDependencies": {
     "babel": "^5.0.0",
     "babel-core": "^5.2.17",
