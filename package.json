@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/smigit/translation-manager-client-app.git"
+    "url": "https://github.com/aspiresoftware/translation-manager-client-app.git"
   },
   "keywords": [
     "translation",
@@ -23,9 +23,9 @@
   ],
   "author": "Aspire Software",
   "bugs": {
-    "url": "https://github.com/smigit/translation-manager-client-app/issues"
+    "url": "https://github.com/aspiresoftware/translation-manager-client-app/issues"
   },
-  "homepage": "https://github.com/smigit/translation-manager-client-app",
+  "homepage": "https://github.com/aspiresoftware/translation-manager-client-app",
   "devDependencies": {
     "babel": "^5.0.0",
     "babel-core": "^5.2.17",

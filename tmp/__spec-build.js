@@ -2122,7 +2122,7 @@ var aes = require('./aes')
 var Transform = require('./cipherBase')
 var inherits = require('inherits')
 var GHASH = require('./ghash')
-var xor = require('./xor')
+var xor = require('buffer-xor')
 inherits(StreamCipher, Transform)
 module.exports = StreamCipher
 
@@ -2217,7 +2217,7 @@ function xorTest (a, b) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"./aes":11,"./cipherBase":14,"./ghash":17,"./xor":27,"buffer":5,"inherits":155}],13:[function(require,module,exports){
+},{"./aes":11,"./cipherBase":14,"./ghash":17,"buffer":5,"buffer-xor":26,"inherits":155}],13:[function(require,module,exports){
 var ciphers = require('./encrypter')
 exports.createCipher = exports.Cipher = ciphers.createCipher
 exports.createCipheriv = exports.Cipheriv = ciphers.createCipheriv
@@ -2239,6 +2239,7 @@ module.exports = CipherBase
 inherits(CipherBase, Transform)
 function CipherBase () {
   Transform.call(this)
+  this._base64Cache = new Buffer('')
 }
 CipherBase.prototype.update = function (data, inputEnc, outputEnc) {
   if (typeof data === 'string') {
@@ -2246,7 +2247,7 @@ CipherBase.prototype.update = function (data, inputEnc, outputEnc) {
   }
   var outData = this._update(data)
   if (outputEnc) {
-    outData = outData.toString(outputEnc)
+    outData = this._toString(outData, outputEnc)
   }
   return outData
 }
@@ -2265,9 +2266,37 @@ CipherBase.prototype._flush = function (next) {
 CipherBase.prototype.final = function (outputEnc) {
   var outData = this._final() || new Buffer('')
   if (outputEnc) {
-    outData = outData.toString(outputEnc)
+    outData = this._toString(outData, outputEnc, true)
   }
   return outData
+}
+
+CipherBase.prototype._toString = function (value, enc, final) {
+  if (enc !== 'base64') {
+    return value.toString(enc)
+  }
+  this._base64Cache = Buffer.concat([this._base64Cache, value])
+  var out
+  if (final) {
+    out = this._base64Cache
+    this._base64Cache = null
+    return out.toString('base64')
+  }
+  var len = this._base64Cache.length
+  var overhang = len % 3
+  if (!overhang) {
+    out = this._base64Cache
+    this._base64Cache = new Buffer('')
+    return out.toString('base64')
+  }
+  var newLen = len - overhang
+  if (!newLen) {
+    return ''
+  }
+
+  out = this._base64Cache.slice(0, newLen)
+  this._base64Cache = this._base64Cache.slice(-overhang)
+  return out.toString('base64')
 }
 
 }).call(this,require("buffer").Buffer)
@@ -2411,7 +2440,7 @@ exports.createDecipher = createDecipher
 exports.createDecipheriv = createDecipheriv
 
 }).call(this,require("buffer").Buffer)
-},{"./EVP_BytesToKey":10,"./aes":11,"./authCipher":12,"./cipherBase":14,"./modes":18,"./modes/cbc":19,"./modes/cfb":20,"./modes/cfb1":21,"./modes/cfb8":22,"./modes/ctr":23,"./modes/ecb":24,"./modes/ofb":25,"./streamCipher":26,"buffer":5,"inherits":155}],16:[function(require,module,exports){
+},{"./EVP_BytesToKey":10,"./aes":11,"./authCipher":12,"./cipherBase":14,"./modes":18,"./modes/cbc":19,"./modes/cfb":20,"./modes/cfb1":21,"./modes/cfb8":22,"./modes/ctr":23,"./modes/ecb":24,"./modes/ofb":25,"./streamCipher":27,"buffer":5,"inherits":155}],16:[function(require,module,exports){
 (function (Buffer){
 var aes = require('./aes')
 var Transform = require('./cipherBase')
@@ -2536,7 +2565,7 @@ exports.createCipheriv = createCipheriv
 exports.createCipher = createCipher
 
 }).call(this,require("buffer").Buffer)
-},{"./EVP_BytesToKey":10,"./aes":11,"./authCipher":12,"./cipherBase":14,"./modes":18,"./modes/cbc":19,"./modes/cfb":20,"./modes/cfb1":21,"./modes/cfb8":22,"./modes/ctr":23,"./modes/ecb":24,"./modes/ofb":25,"./streamCipher":26,"buffer":5,"inherits":155}],17:[function(require,module,exports){
+},{"./EVP_BytesToKey":10,"./aes":11,"./authCipher":12,"./cipherBase":14,"./modes":18,"./modes/cbc":19,"./modes/cfb":20,"./modes/cfb1":21,"./modes/cfb8":22,"./modes/ctr":23,"./modes/ecb":24,"./modes/ofb":25,"./streamCipher":27,"buffer":5,"inherits":155}],17:[function(require,module,exports){
 (function (Buffer){
 var zeros = new Buffer(16)
 zeros.fill(0)
@@ -2812,30 +2841,38 @@ exports['aes-256-gcm'] = {
 }
 
 },{}],19:[function(require,module,exports){
-var xor = require('../xor')
+var xor = require('buffer-xor')
+
 exports.encrypt = function (self, block) {
   var data = xor(block, self._prev)
+
   self._prev = self._cipher.encryptBlock(data)
   return self._prev
 }
+
 exports.decrypt = function (self, block) {
   var pad = self._prev
+
   self._prev = block
   var out = self._cipher.decryptBlock(block)
+
   return xor(out, pad)
 }
 
-},{"../xor":27}],20:[function(require,module,exports){
+},{"buffer-xor":26}],20:[function(require,module,exports){
 (function (Buffer){
-var xor = require('../xor')
+var xor = require('buffer-xor')
+
 exports.encrypt = function (self, data, decrypt) {
   var out = new Buffer('')
   var len
+
   while (data.length) {
     if (self._cache.length === 0) {
       self._cache = self._cipher.encryptBlock(self._prev)
       self._prev = new Buffer('')
     }
+
     if (self._cache.length <= data.length) {
       len = self._cache.length
       out = Buffer.concat([out, encryptStart(self, data.slice(0, len), decrypt)])
@@ -2845,6 +2882,7 @@ exports.encrypt = function (self, data, decrypt) {
       break
     }
   }
+
   return out
 }
 function encryptStart (self, data, decrypt) {
@@ -2856,7 +2894,7 @@ function encryptStart (self, data, decrypt) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"../xor":27,"buffer":5}],21:[function(require,module,exports){
+},{"buffer":5,"buffer-xor":26}],21:[function(require,module,exports){
 (function (Buffer){
 function encryptByte (self, byteParam, decrypt) {
   var pad
@@ -2915,20 +2953,8 @@ exports.encrypt = function (self, chunk, decrypt) {
 }).call(this,require("buffer").Buffer)
 },{"buffer":5}],23:[function(require,module,exports){
 (function (Buffer){
-var xor = require('../xor')
-function getBlock (self) {
-  var out = self._cipher.encryptBlock(self._prev)
-  incr32(self._prev)
-  return out
-}
-exports.encrypt = function (self, chunk) {
-  while (self._cache.length < chunk.length) {
-    self._cache = Buffer.concat([self._cache, getBlock(self)])
-  }
-  var pad = self._cache.slice(0, chunk.length)
-  self._cache = self._cache.slice(chunk.length)
-  return xor(chunk, pad)
-}
+var xor = require('buffer-xor')
+
 function incr32 (iv) {
   var len = iv.length
   var item
@@ -2944,22 +2970,12 @@ function incr32 (iv) {
   }
 }
 
-}).call(this,require("buffer").Buffer)
-},{"../xor":27,"buffer":5}],24:[function(require,module,exports){
-exports.encrypt = function (self, block) {
-  return self._cipher.encryptBlock(block)
-}
-exports.decrypt = function (self, block) {
-  return self._cipher.decryptBlock(block)
+function getBlock (self) {
+  var out = self._cipher.encryptBlock(self._prev)
+  incr32(self._prev)
+  return out
 }
 
-},{}],25:[function(require,module,exports){
-(function (Buffer){
-var xor = require('../xor')
-function getBlock (self) {
-  self._prev = self._cipher.encryptBlock(self._prev)
-  return self._prev
-}
 exports.encrypt = function (self, chunk) {
   while (self._cache.length < chunk.length) {
     self._cache = Buffer.concat([self._cache, getBlock(self)])
@@ -2970,7 +2986,49 @@ exports.encrypt = function (self, chunk) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"../xor":27,"buffer":5}],26:[function(require,module,exports){
+},{"buffer":5,"buffer-xor":26}],24:[function(require,module,exports){
+exports.encrypt = function (self, block) {
+  return self._cipher.encryptBlock(block)
+}
+exports.decrypt = function (self, block) {
+  return self._cipher.decryptBlock(block)
+}
+
+},{}],25:[function(require,module,exports){
+(function (Buffer){
+var xor = require('buffer-xor')
+
+function getBlock (self) {
+  self._prev = self._cipher.encryptBlock(self._prev)
+  return self._prev
+}
+
+exports.encrypt = function (self, chunk) {
+  while (self._cache.length < chunk.length) {
+    self._cache = Buffer.concat([self._cache, getBlock(self)])
+  }
+
+  var pad = self._cache.slice(0, chunk.length)
+  self._cache = self._cache.slice(chunk.length)
+  return xor(chunk, pad)
+}
+
+}).call(this,require("buffer").Buffer)
+},{"buffer":5,"buffer-xor":26}],26:[function(require,module,exports){
+(function (Buffer){
+module.exports = function xor (a, b) {
+  var length = Math.min(a.length, b.length)
+  var buffer = new Buffer(length)
+
+  for (var i = 0; i < length; ++i) {
+    buffer[i] = a[i] ^ b[i]
+  }
+
+  return buffer
+}
+
+}).call(this,require("buffer").Buffer)
+},{"buffer":5}],27:[function(require,module,exports){
 (function (Buffer){
 var aes = require('./aes')
 var Transform = require('./cipherBase')
@@ -2999,21 +3057,7 @@ StreamCipher.prototype._final = function () {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"./aes":11,"./cipherBase":14,"buffer":5,"inherits":155}],27:[function(require,module,exports){
-(function (Buffer){
-module.exports = xor
-function xor (a, b) {
-  var len = Math.min(a.length, b.length)
-  var out = new Buffer(len)
-  var i = -1
-  while (++i < len) {
-    out.writeUInt8(a[i] ^ b[i], i)
-  }
-  return out
-}
-
-}).call(this,require("buffer").Buffer)
-},{"buffer":5}],28:[function(require,module,exports){
+},{"./aes":11,"./cipherBase":14,"buffer":5,"inherits":155}],28:[function(require,module,exports){
 (function (Buffer){
 'use strict'
 exports['RSA-SHA224'] = exports.sha224WithRSAEncryption = {
@@ -11967,11 +12011,13 @@ DERNode.prototype._encodeObjid = function encodeObjid(id, values, relative) {
       return this.reporter.error('string objid given, but no values map found');
     if (!values.hasOwnProperty(id))
       return this.reporter.error('objid not found in values map');
-    id = values[id].split(/\s+/g);
+    id = values[id].split(/[\s\.]+/g);
     for (var i = 0; i < id.length; i++)
       id[i] |= 0;
   } else if (Array.isArray(id)) {
     id = id.slice();
+    for (var i = 0; i < id.length; i++)
+      id[i] |= 0;
   }
 
   if (!Array.isArray(id)) {
@@ -42776,7 +42822,7 @@ module.exports={
   "homepage": "https://github.com/jamuhl/i18next-node#readme",
   "_id": "i18next@1.10.3",
   "_shasum": "d79651e0b9f1b9f0e2b1562c9aa3d2b7e05a5ae0",
-  "_from": "i18next@*",
+  "_from": "i18next@>=1.10.3 <2.0.0",
   "_npmVersion": "2.12.1",
   "_nodeVersion": "0.12.0",
   "_npmUser": {
@@ -51145,7 +51191,7 @@ module.exports={
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/smigit/translation-manager-client-app.git"
+    "url": "https://github.com/aspiresoftware/translation-manager-client-app.git"
   },
   "keywords": [
     "translation",
@@ -51157,9 +51203,9 @@ module.exports={
   ],
   "author": "Aspire Software",
   "bugs": {
-    "url": "https://github.com/smigit/translation-manager-client-app/issues"
+    "url": "https://github.com/aspiresoftware/translation-manager-client-app/issues"
   },
-  "homepage": "https://github.com/smigit/translation-manager-client-app",
+  "homepage": "https://github.com/aspiresoftware/translation-manager-client-app",
   "devDependencies": {
     "babel": "^5.0.0",
     "babel-core": "^5.2.17",
@@ -51224,14 +51270,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var _xhttp = require('xhttp');
 
-var _xhttp2 = _interopRequireDefault(_xhttp);
-
 /**
  * @class
  * AjaxTranslationsLoader to load the translations
  * @options (Object)
  *   restDomain, restPort, restPath, localeParam
  */
+
+var _xhttp2 = _interopRequireDefault(_xhttp);
 
 var AjaxTranslationsLoader = (function () {
   function AjaxTranslationsLoader(options, sucessCallback, failCallback) {
@@ -51263,6 +51309,9 @@ var AjaxTranslationsLoader = (function () {
         sucessCallback(localeKey, data);
       })['catch'](this.failCallback);
     }
+
+    // private
+
   }, {
     key: 'localePath',
     get: function get() {
@@ -51275,9 +51324,6 @@ var AjaxTranslationsLoader = (function () {
     }
   }, {
     key: 'defaultPath',
-
-    // private
-
     get: function get() {
       return 'translations';
     }
@@ -51349,12 +51395,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var _i18next = require('i18next');
 
-var _i18next2 = _interopRequireDefault(_i18next);
-
 /**
  * @class
  * StorageInternationalizer manages translation using i18next
  */
+
+var _i18next2 = _interopRequireDefault(_i18next);
 
 var Internationalizer = (function () {
   function Internationalizer() {
@@ -51420,12 +51466,12 @@ var _ajaxTranslationsLoader2 = _interopRequireDefault(_ajaxTranslationsLoader);
 
 var _eventLogger = require('./eventLogger');
 
-var _eventLogger2 = _interopRequireDefault(_eventLogger);
-
 /**
  * @class
  * LocaleStorage for storage management
  */
+
+var _eventLogger2 = _interopRequireDefault(_eventLogger);
 
 var LocaleStorage = (function () {
   function LocaleStorage(options) {
@@ -51529,19 +51575,19 @@ var _eventLogger2 = _interopRequireDefault(_eventLogger);
 
 var _translationSynchronizer = require('./translationSynchronizer');
 
-var _translationSynchronizer2 = _interopRequireDefault(_translationSynchronizer);
-
 /*eslint-disable */
 
-var _socketIoClient = require('socket.io-client');
+var _translationSynchronizer2 = _interopRequireDefault(_translationSynchronizer);
 
-var _socketIoClient2 = _interopRequireDefault(_socketIoClient);
+var _socketIoClient = require('socket.io-client');
 
 /*eslint-enable */
 /**
  * @class
  * Realtime for real time events
  */
+
+var _socketIoClient2 = _interopRequireDefault(_socketIoClient);
 
 var Realtime = (function () {
   function Realtime(options) {
@@ -51611,13 +51657,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var _localeStorage = require('./localeStorage');
 
-var _localeStorage2 = _interopRequireDefault(_localeStorage);
-
 /**
  * @class
  * TranslationSynchronizer to synchronize translation
  */
 // syncs with Redis DB via Realtime Eventbus
+
+var _localeStorage2 = _interopRequireDefault(_localeStorage);
 
 var TranslationSynchronizer = (function () {
   function TranslationSynchronizer(options) {
@@ -51653,13 +51699,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var _ajaxTranslationsLoader = require('./ajaxTranslationsLoader');
 
-var _ajaxTranslationsLoader2 = _interopRequireDefault(_ajaxTranslationsLoader);
-
 /**
  * @class
  * TranslationsLoader to load all translations
  */
 // performs Ajax Request to get JSON response with locales
+
+var _ajaxTranslationsLoader2 = _interopRequireDefault(_ajaxTranslationsLoader);
 
 var TranslationsLoader = (function () {
   function TranslationsLoader(options) {
@@ -51708,12 +51754,12 @@ var _helpersRealTime2 = _interopRequireDefault(_helpersRealTime);
 
 var _helpersInternationalizer = require('./helpers/internationalizer');
 
-var _helpersInternationalizer2 = _interopRequireDefault(_helpersInternationalizer);
-
 /**
  * @class
  * TranslationManager a pivot class for translation manager
  */
+
+var _helpersInternationalizer2 = _interopRequireDefault(_helpersInternationalizer);
 
 var TranslationManager = (function () {
   function TranslationManager(options) {
