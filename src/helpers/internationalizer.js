@@ -22,7 +22,7 @@ export default class Internationalizer {
   }
 
   translate(locale, key) {
-    return key ? this.translation(locale, key) : this.allTranslations(locale);
+    return key ? this.translation(key) : this.allTranslations(locale);
   }
 
   translation(key) {

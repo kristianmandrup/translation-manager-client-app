@@ -51428,7 +51428,7 @@ var Internationalizer = (function () {
   }, {
     key: 'translate',
     value: function translate(locale, key) {
-      return key ? this.translation(locale, key) : this.allTranslations(locale);
+      return key ? this.translation(key) : this.allTranslations(locale);
     }
   }, {
     key: 'translation',

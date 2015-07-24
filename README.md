@@ -4,6 +4,7 @@
 - Rails 4.0 or grater
 
 To install Node 0.12.7 :
+
 	- Download Node 0.12.7
 	- cd node-v0.12.0
     - ./configure 
@@ -11,14 +12,17 @@ To install Node 0.12.7 :
     - make
 
 To install Redis :
+
 	- http://redis.io/topics/quickstart
 
 To install Rails :
+
 	- https://github.com/aspiresoftware/translation-manager-client-app
 
 ### Getting Started
 
 Now we have three components, that you need to configure:
+
 	- Translation-manager-app(Rails Server)
 	- Translation-manager-client-app(rails client, realtime client)
 	- RealTime Server
@@ -26,13 +30,16 @@ Now we have three components, that you need to configure:
 ### Translation-manager-app
 
 Just, clone it from github:
+
 	- git clone https://github.com/smigit/translation-manager-app
 
 Then start Rails server:
+
 	- cd translation-manager-app
 	- rails server
 
 Also start Rails console as well on second terminal which will be used later:
+
 	- cd translation-manager-app
 	- rails c
 
@@ -42,6 +49,7 @@ Also start Rails console as well on second terminal which will be used later:
 Configuration for Realtime server:
 
 Now open third terminal and follow the steps,
+
 	- gem install foreman
 	- git clone git://github.com/mikeatlas/realtime-server.git
 	- cd realtime-server
@@ -53,6 +61,7 @@ Now open third terminal and follow the steps,
 Installation and configuration for Translation-manager-client-app:
 
 Now open forth terminal and follow the steps,
+
 	- git clone https://github.com/aspiresoftware/translation-manager-client-app
 	- cd translation-manager-client-app
 	- sudo npm install
