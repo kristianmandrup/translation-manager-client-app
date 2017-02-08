@@ -1,11 +1,12 @@
 # Translation Manager client
 
 The entire Translation Manager consists of:
+- [localeapp](https://www.localeapp.com/)
 - Translation-manager-app (Rails Server)
 - Translation-manager-client-app (Rails client, realtime client)
 - RealTime Server
 
-
+The repos involved:
 - [translator - localeapp connector](https://github.com/kristianmandrup/translator)
 - [translator_manager - Rails engine](https://github.com/kristianmandrup/translator_manager)
 - [translator-app](https://github.com/kristianmandrup/sample-translator-app)
@@ -45,7 +46,7 @@ translationManager = new TranslationManager(options);
 
 ### Internationalizer
 
-Connects i18next library to localstorage with translations.
+Connects [i18next](https://www.npmjs.com/package/i18next) library to browser local storage containing translations.
 
 ```js
 internationalizer = new Internationalizer(options);
@@ -76,7 +77,7 @@ translationLoader.load(locale, sucessCallback, failCallback)
 
 ### RealTime
 
-Connects to RedisDB socket with translation updates. On each new message, `translationSynchronizer` is used to save the entry in local storage.
+Connects to [RedisDB](https://redis.io/) socket with translation updates. On each new message, `translationSynchronizer` is used to save the entry in local storage.
 
 ```js
 const realtime = new Realtime(options);
@@ -91,6 +92,31 @@ let translationSynchronizer = new TranslationSynchronizer(options)
 translationSynchronizer.save(message)
 ```
 
+### Language detection
+
+[languagedetector](http://i18next.com/docs/ecosystem/#languagedetector)
+
+## Plugins etc
+- [ecosystem](http://i18next.com/docs/ecosystem/)
+- [backends](http://i18next.com/docs/ecosystem/#backends)
+- [localStorage-cache](https://github.com/i18next/i18next-localStorage-cache)
+
+### Framework use
+
+[framework list](http://i18next.com/docs/ecosystem/#frameworks)
+
+Angular 2: [angular2-i18next](https://www.npmjs.com/package/angular2-i18next)
+
+```
+constructor(private translateI18Next:TranslateI18Next) {
+  translateI18Next.init({ ... })
+```
+
+See [issue](https://github.com/apoterenko/angular2-i18next/issues/4) and make patch/pull to allow for a `use` Array option.
+
+## Alternative backend
+
+[locize](http://locize.com/) locales as a service, see [locize-backend](https://github.com/locize/i18next-locize-backend)
 
 ## Use with Rails app server
 
