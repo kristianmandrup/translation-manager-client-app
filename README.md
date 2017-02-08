@@ -112,7 +112,7 @@ constructor(private translateI18Next:TranslateI18Next) {
   translateI18Next.init({ ... })
 ```
 
-See [issue](https://github.com/apoterenko/angular2-i18next/issues/4) and make patch/pull to allow for a `use` Array option.
+[init options](http://i18next.com/docs/options/) are the same as for i18next.
 
 ## Alternative backend
 
