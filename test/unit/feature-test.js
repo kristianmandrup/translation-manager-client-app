@@ -29,7 +29,7 @@ describe('A Feature tests', () => {
     translationManager = new TranslationManager(options);
   });
 
-  it('AjaxTranslationsLoader exsists', () => expect(AjaxTranslationsLoader).is.not.undefined);
+  it('AjaxTranslationsLoader exists', () => expect(AjaxTranslationsLoader).is.not.undefined);
   it('AjaxTranslationsLoader default ajax call', () => {
     let mockSuccess = function() {
       EventLogger.log('Success');
